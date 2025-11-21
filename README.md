@@ -469,7 +469,7 @@ Click to view the erd design: [ERD](<img width="668" height="2041" alt="evura_di
 ## 14. CREDITS AND ACKNOWLEDGMENTS
 
 ### 14.1 Development Team (QWERTY Team)
-- **Steven Kayitare**: [github]([url](https://github.com/stevenalu))
+- **Steven Kayitare**: [https://github.com/stevenalu](https://github.com/stevenalu)
 - **Robert Cyubahiro**: [https://github.com/rcyubahiro]([url](https://github.com/rcyubahiro))
 - **Belyse Kalisa Teta Yakamwate**: [https://github.com/kbelyse]([url](https://github.com/kbelyse))
 - **Rolande Tumugane**: [https://github.com/TRolande]([url](https://github.com/TRolande))
