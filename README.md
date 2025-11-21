@@ -378,8 +378,7 @@ PORT=5000
 ## 10. DATABASE SCHEMA
 
 ### 10.1 Core Tables in summary
-Click to view the erd design: [ERD](<img width="668" height="2041" alt="evura_diagram" src="https://github.com/user-attachments/assets/7b0733e6-520c-452c-9c45-bde6bbc63f6f" />
-)
+
 **Patients Table**
 - id (Primary Key)
 - username, email, password (hashed)
@@ -418,6 +417,9 @@ Click to view the erd design: [ERD](<img width="668" height="2041" alt="evura_di
 **Procedures Table**
 - Surgical and medical procedures
 - Outcomes and complications tracking
+
+The attached is the erd design: <img width="668" height="2041" alt="evura_diagram" src="https://github.com/user-attachments/assets/6225852b-ba0f-4307-927f-6e490239ac45" />
+
 
 ---
 
