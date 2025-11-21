@@ -470,12 +470,12 @@ Click to view the erd design: [ERD](<img width="668" height="2041" alt="evura_di
 
 ### 14.1 Development Team (QWERTY Team)
 - **Steven Kayitare**: [https://github.com/stevenalu](https://github.com/stevenalu)
-- **Robert Cyubahiro**: [https://github.com/rcyubahiro]([url](https://github.com/rcyubahiro))
-- **Belyse Kalisa Teta Yakamwate**: [https://github.com/kbelyse]([url](https://github.com/kbelyse))
-- **Rolande Tumugane**: [https://github.com/TRolande]([url](https://github.com/TRolande))
-- **Kenny Yannick Imanzi**: [https://github.com/kimanzialu]([url](https://github.com/kimanzialu))
-- **Innocent Nkurunziza**: [https://github.com/innocent-gift]([url](https://github.com/innocent-gift))
-- **Armstrong Ngororano**: [https://github.com/capitale1]([url](https://github.com/capitale1))
+- **Robert Cyubahiro**: [https://github.com/rcyubahiro](https://github.com/rcyubahiro)
+- **Belyse Kalisa Teta Yakamwate**: [https://github.com/kbelyse](https://github.com/kbelyse)
+- **Rolande Tumugane**: [https://github.com/TRolande](https://github.com/TRolande)
+- **Kenny Yannick Imanzi**: [https://github.com/kimanzialu](https://github.com/kimanzialu)
+- **Innocent Nkurunziza**: [https://github.com/innocent-gift](https://github.com/innocent-gift)
+- **Armstrong Ngororano**: [https://github.com/capitale1](https://github.com/capitale1)
 
 ### 14.2 Technologies and Services
 - **Flask Framework**: Python web development framework
@@ -495,6 +495,6 @@ This platform was inspired by real story faced by patient with chronic condition
 
 **Contact Information:**
 - **Platform URL**: [E-vura](https://evura.onrender.com)
-- **Support Email**: [s.kayitare@alustudent.com](s.kayitare@alustudent.com)
+- **Support Email**: [s.kayitare@alustudent.com](mailto:s.kayitare@alustudent.com)
 
 **Disclaimer**: This project is developed for educational and healthcare improvement purposes.
