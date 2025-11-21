@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-1. Overview
+1. Overview & Demo Video
 2. Features
 3. System Architecture
 4. Technologies Used
@@ -22,6 +22,7 @@
 ---
 
 ## 1. OVERVIEW
+### 1.1 System Description
 
 E-Vura is a comprehensive digital healthcare platform designed specifically for Rwanda and African healthcare systems. The platform addresses critical challenges in healthcare delivery by providing seamless medical record continuity, chronic disease management, and efficient doctor-patient connectivity.
 
@@ -30,6 +31,9 @@ E-Vura is a comprehensive digital healthcare platform designed specifically for 
 **Vision**: A healthcare system where every patient's complete medical timeline is accessible to any qualified doctor, enabling better diagnosis and treatment outcomes.
 
 **Important Notice**: This platform handles sensitive medical data and implements industry-standard security measures. All medical decisions should be made in consultation with qualified healthcare professionals.
+
+### 1.2 E-vura Demo Video
+**Watch full demo video here:** [click here](https://www.youtube.com/@mindfulsolutionsALU)
 
 ---
 
