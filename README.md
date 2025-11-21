@@ -12,12 +12,11 @@
 6. Deployment Guide
 7. User Manual
 8. Admin Guide
-9. API Documentation
-10. Security Features
-11. Database Schema
-12. Challenges and Solutions
-13. Future Enhancements
-14. Credits and Acknowledgments
+9. Security Features
+10. Database Schema
+11. Challenges and Solutions
+12. Future Enhancements
+13. Credits and Acknowledgments
 
 ---
 
@@ -399,7 +398,7 @@ PORT=5000
 - date, time, reason, status
 - notes, created_at
 
-### 11.2 Medical Records Tables
+### 10.2 Medical Records Tables
 
 **Medical Files Table**
 - Patient medical document uploads
@@ -425,44 +424,44 @@ The attached is the erd design:
 
 ---
 
-## 12. CHALLENGES AND SOLUTIONS
+## 11. CHALLENGES AND SOLUTIONS
 
-### 12.1 Database Migration Challenge
+### 11.1 Database Migration Challenge
 **Challenge**: Moving from SQLite development to PostgreSQL production
 **Solution**: Implemented environment-based database URL configuration with automatic table creation
 
-### 12.2 Email Service Integration
+### 11.2 Email Service Integration
 **Challenge**: Reliable email delivery for appointment notifications
 **Solution**: SendGrid integration with comprehensive error handling and logging
 
-### 12.3 File Upload Security
+### 11.3 File Upload Security
 **Challenge**: Secure handling of medical document uploads
 **Solution**: File type validation, secure filename generation, and restricted access controls
 
-### 12.4 Doctor Verification Process
+### 11.4 Doctor Verification Process
 **Challenge**: Ensuring only qualified medical professionals gain access
 **Solution**: Pre-approval application system with document verification and admin review
 
-### 12.5 Medical Record Privacy
+### 11.5 Medical Record Privacy
 **Challenge**: Balancing accessibility with privacy protection
 **Solution**: Permission-based access system where doctors can only view records of patients they have treated
 
-### 12.6 Appointment Scheduling Conflicts
+### 11.6 Appointment Scheduling Conflicts
 **Challenge**: Preventing double-booking and managing doctor availability
 **Solution**: Real-time availability checking with database constraints and time slot management
 
 ---
 
-## 13. FUTURE ENHANCEMENTS
+## 12. FUTURE ENHANCEMENTS
 
-### 13.1 Planned Features
+### 12.1 Planned Features
 - **Mobile Application**: Native iOS and Android applications
 - **Telemedicine Integration**: Video consultation capabilities
 - **AI-Powered Insights**: Medical history analysis and health predictions
 - **Multi-language Support**: Kinyarwanda, French, and English interfaces
 - **Insurance Integration**: Health insurance verification and billing
 
-### 13.2 Technical Improvements
+### 12.2 Technical Improvements
 - **API Development**: RESTful API for third-party integrations
 - **Performance Optimization**: Database indexing and query optimization
 - **Advanced Analytics**: Platform usage analytics and health insights
@@ -470,9 +469,9 @@ The attached is the erd design:
 
 ---
 
-## 14. CREDITS AND ACKNOWLEDGMENTS
+## 13. CREDITS AND ACKNOWLEDGMENTS
 
-### 14.1 Development Team (QWERTY Team)
+### 13.1 Development Team (QWERTY Team)
 - **Steven Kayitare**: [https://github.com/stevenalu](https://github.com/stevenalu)
 - **Robert Cyubahiro**: [https://github.com/rcyubahiro](https://github.com/rcyubahiro)
 - **Belyse Kalisa Teta Yakamwate**: [https://github.com/kbelyse](https://github.com/kbelyse)
@@ -481,16 +480,16 @@ The attached is the erd design:
 - **Innocent Nkurunziza**: [https://github.com/innocent-gift](https://github.com/innocent-gift)
 - **Armstrong Ngororano**: [https://github.com/capitale1](https://github.com/capitale1)
 
-### 14.2 Technologies and Services
+### 13.2 Technologies and Services
 - **Flask Framework**: Python web development framework
 - **SendGrid**: Email delivery service for notifications
 - **Render**: Cloud hosting platform for deployment
 - **PostgreSQL**: Reliable database management system
 
-### 14.3 Healthcare Inspiration
+### 13.3 Healthcare Inspiration
 This platform was inspired by real story faced by patient with chronic conditions who lose medical history when switching healthcare providers in Rwanda and across Africa.
 
-### 14.4 Special Recognition
+### 13.4 Special Recognition
 - **Rwanda Medical and Dental Council**: For providing medical licensing standards
 - **African Leadership University**: For providing educational context and support
 - **Open Source Community**: For the foundational technologies that made this platform possible
