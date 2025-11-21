@@ -4,20 +4,20 @@
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Features](#features)
-3. [System Architecture](#system-architecture)
-4. [Technologies Used](#technologies-used)
-5. [Local Development Setup](#local-development-setup)
-6. [Deployment Guide](#deployment-guide)
-7. [User Manual](#user-manual)
-8. [Admin Guide](#admin-guide)
-9. [API Documentation](#api-documentation)
-10. [Security Features](#security-features)
-11. [Database Schema](#database-schema)
-12. [Challenges and Solutions](#challenges-and-solutions)
-13. [Future Enhancements](#future-enhancements)
-14. [Credits and Acknowledgments](#credits-and-acknowledgments)
+1. Overview
+2. Features
+3. System Architecture
+4. Technologies Used
+5. Local Development Setup
+6. Deployment Guide
+7. User Manual
+8. Admin Guide
+9. API Documentation
+10. Security Features
+11. Database Schema
+12. Challenges and Solutions
+13. Future Enhancements
+14. Credits and Acknowledgments
 
 ---
 
@@ -121,7 +121,7 @@ Flask Application (Python)
 ### 4.5 Development Tools
 - **Git**: Version control system
 - **VS Code**: Development environment
-- **Postman**: API testing (development phase)
+- **Local browser**: API endpoints testing (development phase)
 
 ---
 
@@ -136,27 +136,27 @@ Flask Application (Python)
 
 **Step 1: Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/evura-healthcare.git
-cd evura-healthcare
+git clone https://github.com/e-vura/E-vura.git
+cd E-vura
 ```
 
 **Step 2: Create Virtual Environment**
 ```bash
-python -m venv venv
+python -m venv venv or virtualenv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 **Step 3: Install Dependencies**
 ```bash
-pip install flask flask-sqlalchemy flask-bcrypt python-dotenv sendgrid werkzeug
+    pip install -r requirements.txt
 ```
 
 **Step 4: Environment Configuration**
 Create a `.env` file in the root directory:
 ```env
-SENDGRID_API_KEY=your_sendgrid_api_key_here
+SENDGRID_API_KEY=insert_sendgrid_api_key_here
 DATABASE_URL=sqlite:///evura.db
-SECRET_KEY=your_secret_key_here
+SECRET_KEY=secret_key_holder
 ```
 
 **Step 5: Initialize Database**
@@ -164,11 +164,22 @@ SECRET_KEY=your_secret_key_here
 python app.py
 # Database tables will be created automatically on first run
 ```
+If failed to run consider the following option:
+```bash
+#open the terminal and go inside python environment and follow the following manually
+python
+>>> from app import app, db
+>>> with app.app_context():
+      db.create_all()
+...
+>>>exit() # to go back to normal evironment
+```
+
 
 **Step 6: Run the Application**
 ```bash
 python app.py
-# Access at http://localhost:5000
+# Access the app at http://localhost:5000
 ```
 
 ### 5.3 Development Database Setup
@@ -189,12 +200,27 @@ The application automatically creates necessary database tables on startup. For 
 - Push code to GitHub repository
 - Ensure `requirements.txt` includes all dependencies:
 ```txt
-flask
-flask-sqlalchemy
-flask-bcrypt
+bcrypt==5.0.0
+blinker==1.9.0
+click==8.3.0
+colorama==0.4.6
+Flask==3.1.2
+Flask-Bcrypt==1.0.1
+Flask-Login==0.6.3
+Flask-SQLAlchemy==3.1.1
+Flask-WTF==1.2.2
+greenlet==3.2.4
+gunicorn==23.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+packaging==25.0
+SQLAlchemy==2.0.44
+typing_extensions==4.15.0
+Werkzeug==3.1.3
+WTForms==3.2.1
+psycopg2
 sendgrid
-python-dotenv
-werkzeug
 ```
 
 **Step 2: Database Setup**
@@ -210,15 +236,11 @@ werkzeug
   - `DATABASE_URL` (PostgreSQL connection string)
   - `SECRET_KEY`
 
-**Step 4: Domain Configuration**
-- Configure custom domain if required
-- Set up SSL certificates (automatic with Render)
-
 ### 6.2 Environment Variables Configuration
 ```env
-SENDGRID_API_KEY=SG.your_sendgrid_api_key
-DATABASE_URL=postgresql://username:password@host:5432/database
-SECRET_KEY=your_secure_secret_key
+SENDGRID_API_KEY=sendgrid_api_key
+DATABASE_URL=postgresql_External_URL
+SECRET_KEY=secret_key
 PORT=5000
 ```
 
@@ -329,98 +351,31 @@ PORT=5000
 
 ---
 
-## 9. API DOCUMENTATION
 
-### 9.1 Authentication Endpoints
-
-**Patient Registration**
-```
-POST /register/patient
-Content-Type: application/x-www-form-urlencoded
-
-username=John+Doe&email=john@example.com&password=securepass123
-```
-
-**Doctor Application**
-```
-POST /apply/doctor
-Content-Type: multipart/form-data
-
-Fields: username, email, password, specialization, hospital, rmdc_license, medical_license (file)
-```
-
-**User Login**
-```
-POST /login
-Content-Type: application/x-www-form-urlencoded
-
-email=user@example.com&password=userpassword&user_type=patient
-```
-
-### 9.2 Medical Records Endpoints
-
-**Upload Medical Record**
-```
-POST /patient/upload-records
-Content-Type: multipart/form-data
-Authentication: Required (Patient session)
-
-Fields: file_type, description, test_date, medical_file
-```
-
-**View Patient History**
-```
-GET /doctor/patient-history/{patient_id}
-Authentication: Required (Doctor session)
-
-Returns: Complete medical timeline for authorized patient
-```
-
-### 9.3 Appointment Management
-
-**Book Appointment**
-```
-POST /appointment/book
-Content-Type: application/x-www-form-urlencoded
-Authentication: Required (Patient session)
-
-doctor_id=1&date=2025-01-15&time=14:30&reason=General+checkup
-```
-
-**Update Appointment Status**
-```
-POST /appointment/{appointment_id}/status
-Content-Type: application/x-www-form-urlencoded
-Authentication: Required (Doctor session)
-
-status=confirmed|cancelled|completed
-```
-
----
-
-## 10. SECURITY FEATURES
+## 9. SECURITY FEATURES
 
 ### 10.1 Authentication Security
 - **Password Hashing**: Bcrypt with salt for secure password storage
 - **Session Management**: Secure session handling with timeout
 - **Role-Based Access**: Strict separation of patient, doctor, and admin access
 
-### 10.2 Data Protection
+### 9.2 Data Protection
 - **Input Validation**: Server-side validation for all user inputs
 - **File Upload Security**: Restricted file types and size limits
 - **SQL Injection Protection**: SQLAlchemy ORM prevents injection attacks
 
-### 10.3 Privacy Compliance
+### 9.3 Privacy Compliance
 - **Medical Record Access Control**: Doctors can only access records of patients they have treated
 - **Chronic Condition Alerts**: Special handling for sensitive medical information
 - **Audit Trail**: Tracking of medical record access and modifications
 
 ---
 
-## 11. DATABASE SCHEMA
+## 10. DATABASE SCHEMA
 
-### 11.1 Core Tables
-
+### 10.1 Core Tables in summary
+Click to view the erd design: [ERD](<img width="668" height="2041" alt="evura_diagram" src="https://github.com/user-attachments/assets/7b0733e6-520c-452c-9c45-bde6bbc63f6f" />
+)
 **Patients Table**
 - id (Primary Key)
 - username, email, password (hashed)
@@ -509,9 +464,14 @@ status=confirmed|cancelled|completed
 
 ## 14. CREDITS AND ACKNOWLEDGMENTS
 
-### 14.1 Development Team
-- **Lead Developer**: Primary application architecture and implementation
-- **Healthcare Consultants**: Medical workflow validation and requirements gathering
+### 14.1 Development Team (QWERTY Team)
+- **Steven Kayitare**: [https://github.com/stevenalu]([url](https://github.com/stevenalu))
+- **Robert Cyubahiro**: [https://github.com/rcyubahiro]([url](https://github.com/rcyubahiro))
+- **Belyse Kalisa Teta Yakamwate**: [https://github.com/kbelyse]([url](https://github.com/kbelyse))
+- **Rolande Tumugane**: [https://github.com/TRolande]([url](https://github.com/TRolande))
+- **Kenny Yannick Imanzi**: [https://github.com/kimanzialu]([url](https://github.com/kimanzialu))
+- **Innocent Nkurunziza**: [https://github.com/innocent-gift]([url](https://github.com/innocent-gift))
+- **Armstrong Ngororano**: [https://github.com/capitale1]([url](https://github.com/capitale1))
 
 ### 14.2 Technologies and Services
 - **Flask Framework**: Python web development framework
@@ -520,7 +480,7 @@ status=confirmed|cancelled|completed
 - **PostgreSQL**: Reliable database management system
 
 ### 14.3 Healthcare Inspiration
-This platform was inspired by real-world challenges faced by patients with chronic conditions who lose medical history when switching healthcare providers in Rwanda and across Africa.
+This platform was inspired by real story faced by patient with chronic conditions who lose medical history when switching healthcare providers in Rwanda and across Africa.
 
 ### 14.4 Special Recognition
 - **Rwanda Medical and Dental Council**: For providing medical licensing standards
@@ -530,9 +490,7 @@ This platform was inspired by real-world challenges faced by patients with chron
 ---
 
 **Contact Information:**
-- **Platform URL**: [Your deployed URL]
-- **Support Email**: [Your support email]
-- **Documentation**: [Link to additional documentation]
-- **GitHub Repository**: [Your repository URL]
+- **Platform URL**: [E-vura](https://evura.onrender.com)
+- **Support Email**: [s.kayitare@alustudent.com](s.kayitare@alustudent.com)
 
-**License**: This project is developed for educational and healthcare improvement purposes. All medical data handling complies with applicable healthcare privacy regulations.
+**Disclaimer**: This project is developed for educational and healthcare improvement purposes.
