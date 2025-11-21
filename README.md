@@ -1,4 +1,4 @@
-# E-VURA PLATFORM ( [https://evura.onrender.com](url) ) BY **QWERTY TEAM**
+# E-VURA PLATFORM ( [https://evura.onrender.com](https://evura.onrender.com) ) BY **QWERTY TEAM**
 
 ---
 
