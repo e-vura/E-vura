@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import os
 from werkzeug.utils import secure_filename
@@ -240,6 +240,41 @@ class DoctorAvailability(db.Model):
     # Relationship
     doctor = db.relationship('Doctor', backref='availability_slots')
 
+class PasswordReset(db.Model):
+    """Password reset tokens"""
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+    user_type = db.Column(db.String(10), nullable=False)  # 'patient' or 'doctor'
+    token = db.Column(db.String(100), nullable=False, unique=True)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class DoctorApplication(db.Model):
+    """Pending doctor applications before account creation"""
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Basic information
+    username = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(200), nullable=False)  # Hashed password stored temporarily
+    phone = db.Column(db.String(20))
+    specialization = db.Column(db.String(100))
+    hospital = db.Column(db.String(200))
+    years_experience = db.Column(db.Integer)
+    
+    # Verification documents
+    rmdc_license = db.Column(db.String(50))  # Rwanda Medical Council license
+    moh_registration = db.Column(db.String(50))  # Ministry of Health registration
+    license_file = db.Column(db.String(255))  # Uploaded license document
+    
+    # Application status
+    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reviewed_at = db.Column(db.DateTime)
+    admin_notes = db.Column(db.Text)
+
 # EMAIL FUNCTIONS
 
 def send_email(to, subject, template_name, **kwargs):
@@ -397,11 +432,114 @@ def render_email_template(template_name, **kwargs):
             <p style="font-size: 16px; line-height: 1.6;">You can view your updated medical history anytime in your E-Vura dashboard.</p>
             <p style="font-size: 16px; line-height: 1.6;">Take care and thank you for trusting E-Vura with your healthcare journey!</p>
             <p style="margin-top: 30px; font-size: 16px;">Best regards,<br><strong>The E-Vura Healthcare Team</strong></p>
-        """
+        """,
+        
+        'doctor_approved': f"""
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h3 style="color: #10b981; font-size: 24px; margin-bottom: 10px;">Account Approved - Welcome to E-Vura</h3>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.6;">Dear <strong>Dr. {kwargs.get('doctor_name')}</strong>,</p>
+            <p style="font-size: 16px; line-height: 1.6;">Congratulations! Your E-Vura doctor application has been approved and your account has been created.</p>
+    
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 8px;">
+                <p style="margin: 0 0 10px; color: #065f46; font-weight: bold; font-size: 15px;">You can now log in using:</p>
+                <ul style="margin: 0; color: #047857; line-height: 1.8;">
+                    <li>The same email address you used for your application</li>
+                    <li>The same password you created during application</li>
+                </ul>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.6;">Welcome to the E-Vura healthcare platform. You can now access patient consultations and manage your medical practice through our system.</p>
+    
+            <p style="margin-top: 30px; font-size: 16px;">Best regards,<br><strong>The E-Vura Healthcare Team</strong></p>
+        """,
+
+        'doctor_rejected': f"""
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h3 style="color: #ef4444; font-size: 24px; margin-bottom: 10px;">Application Status Update</h3>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.6;">Dear <strong>{kwargs.get('doctor_name')}</strong>,</p>
+            <p style="font-size: 16px; line-height: 1.6;">Thank you for your interest in joining E-Vura. After careful review, we are unable to approve your application at this time.</p>
+    
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 25px 0; border-radius: 8px;">
+                <p style="margin: 0; color: #991b1b; font-size: 14px;">
+                    If you believe this decision was made in error or if you have additional documentation to support your application, please contact our support team.
+                </p>
+            </div>
+    
+            <p style="margin-top: 30px; font-size: 16px;">Best regards,<br><strong>The E-Vura Healthcare Team</strong></p>
+        """,
+
+        'password_reset': f"""
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h3 style="color: #0d9488; font-size: 24px; margin-bottom: 10px;">Password Reset Request</h3>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.6;">Dear <strong>{kwargs.get('user_name')}</strong>,</p>
+            <p style="font-size: 16px; line-height: 1.6;">You requested a password reset for your E-Vura account.</p>
+    
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{kwargs.get('reset_link')}" 
+                    style="background: #0d9488; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 600; display: inline-block;">
+                    Reset Password
+                </a>
+            </div>
+    
+            <div style="background: #fef7f0; border-left: 4px solid #f59e0b; padding: 20px; margin: 25px 0; border-radius: 8px;">
+                <p style="margin: 0; color: #92400e; font-size: 14px;">
+                    <strong> Important:</strong> This link expires in 1 hour for security reasons.
+                </p>
+            </div>
+    
+            <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+                If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
+            </p>
+    
+            <p style="margin-top: 30px; font-size: 16px;">Best regards,<br><strong>The E-Vura Healthcare Team</strong></p>
+        """,
+        'admin_notification': f"""
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h3 style="color: #ef4444; font-size: 24px; margin-bottom: 10px;">New Doctor Application Received</h3>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.6;">A new doctor application has been submitted and requires your review.</p>
+    
+            <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 25px 0; border-radius: 8px;">
+                <h4 style="color: #0c4a6e; margin-bottom: 15px;">Application Details:</h4>
+                <p style="margin: 5px 0; color: #0c4a6e;"><strong>Doctor Name:</strong> {kwargs.get('doctor_name')}</p>
+                <p style="margin: 5px 0; color: #0c4a6e;"><strong>Email:</strong> {kwargs.get('doctor_email')}</p>
+                <p style="margin: 5px 0; color: #0c4a6e;"><strong>Specialization:</strong> {kwargs.get('specialization')}</p>
+                <p style="margin: 5px 0; color: #0c4a6e;"><strong>Hospital:</strong> {kwargs.get('hospital')}</p>
+                <p style="margin: 5px 0; color: #0c4a6e;"><strong>RMDC License:</strong> {kwargs.get('rmdc_license')}</p>
+            </div>
+    
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://evura.onrender.com/admin/login" 
+                    style="background: #0d9488; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 600; display: inline-block;">
+                    Review Application Now
+                </a>
+            </div>
+    
+            <div style="background: #fef7f0; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 8px;">
+                <p style="margin: 0; color: #92400e; font-size: 14px;">
+                    <strong>Action Required:</strong> Please review this application promptly to maintain good service standards.
+                </p>
+            </div>
+    
+            <p style="margin-top: 30px; font-size: 16px;">Best regards,<br><strong>E-Vura System</strong></p>
+        """,
     }
     
     content = templates.get(template_name, f"<p>E-Vura Healthcare Platform notification</p>")
     return base_style.format(content=content)
+
+def generate_reset_token():
+    """Generate secure random token"""
+    import secrets
+    return secrets.token_urlsafe(32)
+
 
 def generate_time_slots(start_time, end_time, duration=30):
     """Generate time slots between start and end time"""
@@ -523,47 +661,83 @@ def register_patient():
     
     return render_template('register_patient.html')
 
-@app.route('/register/doctor', methods=['GET', 'POST'])
-def register_doctor():
+@app.route('/apply/doctor', methods=['GET', 'POST'])
+def apply_doctor():
+    """Doctor application submission (not immediate registration)"""
     if request.method == 'POST':
         username = request.form['username'].strip()
         email = request.form['email'].strip().lower()
         password = request.form['password']
-        specialization = request.form.get('specialization', '').strip()
-        license_number = request.form.get('license_number', '').strip()
-        hospital = request.form.get('hospital', '').strip()
         
+        # Validation
         if len(username) < 3:
             flash('Username must be at least 3 characters.', 'warning')
-            return redirect(url_for('register_doctor'))
+            return redirect(url_for('apply_doctor'))
         
         if len(password) < 6:
             flash('Password must be at least 6 characters.', 'warning')
-            return redirect(url_for('register_doctor'))
+            return redirect(url_for('apply_doctor'))
         
+        # Check if email already exists in applications or doctors
+        if DoctorApplication.query.filter_by(email=email).first():
+            flash('Application with this email already submitted.', 'warning')
+            return redirect(url_for('apply_doctor'))
+            
         if Doctor.query.filter_by(email=email).first():
             flash('Email already registered. Please log in.', 'warning')
-            return redirect(url_for('register_doctor'))
+            return redirect(url_for('apply_doctor'))
         
-        if Doctor.query.filter_by(username=username).first():
-            flash('Username already taken. Please choose another.', 'warning')
-            return redirect(url_for('register_doctor'))
-        
+        # Create application
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_doctor = Doctor(
-            username=username, email=email, password=hashed_password,
-            specialization=specialization, license_number=license_number, hospital=hospital
+        application = DoctorApplication(
+            username=username,
+            email=email,
+            password=hashed_password,
+            phone=request.form.get('phone', '').strip(),
+            specialization=request.form.get('specialization', '').strip(),
+            hospital=request.form.get('hospital', '').strip(),
+            rmdc_license=request.form.get('rmdc_license', '').strip(),
+            moh_registration=request.form.get('moh_registration', '').strip(),
+            status='pending'
         )
         
+        # Handle years of experience
+        years_exp = request.form.get('years_experience', '').strip()
+        if years_exp.isdigit():
+            application.years_experience = int(years_exp)
+        
+        # Handle file upload
+        if 'medical_license' in request.files:
+            file = request.files['medical_license']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(f"license_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                application.license_file = filename
+        
         try:
-            db.session.add(new_doctor)
+            db.session.add(application)
             db.session.commit()
-            flash('Account created successfully! Please log in.', 'success')
-            return redirect(url_for('login'))
+
+            # Now notify admin that new doctor is coming
+            send_email(
+                 
+                to='s.kayitare@alustudent.com',
+                subject='New Doctor Application Submitted',
+                template_name='admin_notification',
+                doctor_name=application.username,
+                doctor_email=application.email,
+                specialization=application.specialization or 'General Practice',
+                hospital=application.hospital or 'Not specified',
+                rmdc_license=application.rmdc_license
+            )
+            
+            flash('Application submitted successfully! You will receive an email once your application is reviewed.', 'info')
+            return redirect(url_for('index'))
+            
         except Exception as e:
-            flash('Registration failed. Please try again.', 'danger')
+            flash('Application submission failed. Please try again.', 'danger')
     
-    return render_template('register_doctor.html')
+    return render_template('apply_doctor.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1170,6 +1344,93 @@ print(f" DATABASE_URL exists: {bool(os.environ.get('DATABASE_URL'))}")
 
 print(f" Final DB URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Send password reset email"""
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        user_type = request.form['user_type']
+        
+        # Check if user exists
+        if user_type == 'patient':
+            user = Patient.query.filter_by(email=email).first()
+        else:
+            user = Doctor.query.filter_by(email=email).first()
+        
+        if user:
+            # Generate reset token
+            token = generate_reset_token()
+            expires_at = datetime.utcnow() + timedelta(hours=1)  # 1 hour expiry
+            
+            # Save reset token
+            reset_request = PasswordReset(
+                email=email,
+                user_type=user_type,
+                token=token,
+                expires_at=expires_at
+            )
+            db.session.add(reset_request)
+            db.session.commit()
+            
+            # Send reset email
+            reset_link = url_for('reset_password', token=token, _external=True)
+            send_email(
+                to=email,
+                subject="Password Reset Request",
+                template_name='password_reset',
+                user_name=user.username,
+                reset_link=reset_link
+            )
+        
+        # Always show success message (security - don't reveal if email exists)
+        flash('If that email is registered, you will receive password reset instructions.', 'info')
+        return redirect(url_for('login'))
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Reset password with valid token"""
+    # Find valid token
+    reset_request = PasswordReset.query.filter_by(
+        token=token,
+        used=False
+    ).filter(PasswordReset.expires_at > datetime.utcnow()).first()
+    
+    if not reset_request:
+        flash('Invalid or expired reset link.', 'danger')
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        if len(password) < 6:
+            flash('Password must be at least 6 characters.', 'warning')
+            return render_template('reset_password.html', token=token)
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'warning')
+            return render_template('reset_password.html', token=token)
+        
+        # Update user password
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        
+        if reset_request.user_type == 'patient':
+            user = Patient.query.filter_by(email=reset_request.email).first()
+        else:
+            user = Doctor.query.filter_by(email=reset_request.email).first()
+        
+        user.password = hashed_password
+        reset_request.used = True
+        
+        db.session.commit()
+        
+        flash('Password updated successfully! Please log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', token=token)
+
 @app.route('/reset-db')
 def reset_database():
     """Clear all database tables and recreate them"""
@@ -1182,6 +1443,139 @@ def reset_database():
     except Exception as e:
         return f"<h2 style='color: red;'>Error:</h2><p>{e}</p><a href='/'>← Back</a>"
 # Create database tables on startup
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin'):
+            flash('Admin access required', 'danger')
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """Simple admin login"""
+    if request.method == 'POST':
+        password = request.form['password']
+        # Change this password for production use
+        if password == 'qwerty':  
+            session['admin'] = True
+            flash('Admin access granted', 'success')
+            return redirect(url_for('admin_applications'))
+        else:
+            flash('Invalid admin password', 'danger')
+    
+    return render_template('admin_login.html')
+
+@app.route('/admin/applications')
+@admin_required
+def admin_applications():
+    """View all doctor applications"""
+    pending = DoctorApplication.query.filter_by(status='pending').all()
+    approved = DoctorApplication.query.filter_by(status='approved').order_by(DoctorApplication.reviewed_at.desc()).limit(10).all()
+    rejected = DoctorApplication.query.filter_by(status='rejected').order_by(DoctorApplication.reviewed_at.desc()).limit(5).all()
+    
+    # Count today's applications
+    today = datetime.now().date()
+    today_applications = DoctorApplication.query.filter(
+        db.func.date(DoctorApplication.submitted_at) == today
+    ).count()
+    
+    return render_template('admin_applications.html', 
+                         pending=pending, approved=approved, rejected=rejected,
+                         today_count=today_applications)
+
+@app.route('/admin/approve/<int:app_id>')
+@admin_required
+def approve_application(app_id):
+    """Approve doctor application and create actual account"""
+    application = DoctorApplication.query.get_or_404(app_id)
+    
+    if application.status != 'pending':
+        flash('Application already processed', 'warning')
+        return redirect(url_for('admin_applications'))
+    
+    # Check if email already exists
+    if Doctor.query.filter_by(email=application.email).first():
+        flash('Email already registered in system', 'danger')
+        return redirect(url_for('admin_applications'))
+    
+    # Create actual doctor account
+    new_doctor = Doctor(
+        username=application.username,
+        email=application.email,
+        password=application.password,  # Already hashed
+        phone=application.phone,
+        specialization=application.specialization,
+        hospital=application.hospital,
+        years_experience=application.years_experience,
+        license_number=application.rmdc_license
+    )
+    
+    # Update application status
+    application.status = 'approved'
+    application.reviewed_at = datetime.utcnow()
+    
+    try:
+        db.session.add(new_doctor)
+        db.session.commit()
+        
+        # Send welcome email
+        send_email(
+            to=application.email,
+            subject='Account Approved - Welcome to E-Vura',
+            template_name='doctor_approved',
+            doctor_name=application.username
+        )
+        
+        flash(f'Dr. {application.username} approved and account created successfully', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash('Error creating doctor account', 'danger')
+    
+    return redirect(url_for('admin_applications'))
+
+@app.route('/admin/reject/<int:app_id>')
+@admin_required
+def reject_application(app_id):
+    """Reject doctor application"""
+    application = DoctorApplication.query.get_or_404(app_id)
+    
+    if application.status != 'pending':
+        flash('Application already processed', 'warning')
+        return redirect(url_for('admin_applications'))
+    
+    application.status = 'rejected'
+    application.reviewed_at = datetime.utcnow()
+    
+    try:
+        db.session.commit()
+        
+        # Send rejection email
+        send_email(
+            to=application.email,
+            subject='Application Status Update',
+            template_name='doctor_rejected',
+            doctor_name=application.username
+        )
+        
+        flash(f'Application from {application.username} has been rejected', 'info')
+        
+    except Exception as e:
+        flash('Error updating application status', 'danger')
+    
+    return redirect(url_for('admin_applications'))
+
+@app.route('/admin/logout')
+@admin_required
+def admin_logout():
+    """Admin logout"""
+    session.pop('admin', None)
+    flash('Admin logged out', 'info')
+    return redirect(url_for('index'))
+
 
 with app.app_context():
 
