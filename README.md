@@ -418,7 +418,9 @@ PORT=5000
 - Surgical and medical procedures
 - Outcomes and complications tracking
 
-The attached is the erd design: <img width="668" height="2041" alt="evura_diagram" src="https://github.com/user-attachments/assets/6225852b-ba0f-4307-927f-6e490239ac45" />
+The attached is the erd design: 
+
+<img width="668" height="2041" alt="evura_diagram" src="https://github.com/user-attachments/assets/6225852b-ba0f-4307-927f-6e490239ac45" />
 
 
 ---
