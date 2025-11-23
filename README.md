@@ -32,7 +32,7 @@ E-Vura is a comprehensive digital healthcare platform designed specifically for 
 **Important Notice**: This platform handles sensitive medical data and implements industry-standard security measures. All medical decisions should be made in consultation with qualified healthcare professionals.
 
 ### 1.2 E-vura Demo Video
-**Watch full demo video here:** [click here](https://www.youtube.com/@mindfulsolutionsALU)
+**Watch full demo video here:** [click here](https://youtu.be/8pjdabTcfzI?si=plgM3OEzbAXOhBMl)
 
 ---
 
